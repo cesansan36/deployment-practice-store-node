@@ -1,0 +1,23 @@
+name: Create Azure Resources
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create:
+    runs-on: ubuntu-latests
+
+    steps:
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Azure Resources
+      run: |
+        az group create --name ${{ vars.RESOURCE_GROUP }} --location ${{ vars.LOCATION }}
+        
+        az appservice plan create --name ${{ vars.PLAN_NAME }} --resource-group ${{ vars.RESOURCE_GROUP }} --sku B1 --is-linux
+        
+        az webapp create --resource-group ${{ vars.RESOURCE_GROUP }} --plan ${{ vars.PLAN_NAME }} --name ${{ vars.APP_NAME }} --runtime "NODE|18-lts" --startup-file "npm start"
+        
